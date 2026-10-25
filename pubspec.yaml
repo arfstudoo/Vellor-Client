@@ -1,0 +1,30 @@
+name: vellor_client
+description: "Vellor Client application"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  http: ^1.6.0
+  intl: ^0.20.3
+  path_provider: ^2.1.5
+  flutter_singbox_client: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/flags/
+    - assets/images/
