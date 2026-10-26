@@ -88,6 +88,8 @@ class AppStorage {
         'autoConnect': data['autoConnect'] ?? false,
         'autoStart': data['autoStart'] ?? false,
         'splitApps': List<String>.from(data['splitApps'] ?? []),
+        'tlsFragment': data['tlsFragment'] ?? false,
+        'killSwitch': data['killSwitch'] ?? false,
       };
     } catch (_) {
       return {
@@ -106,6 +108,8 @@ class AppStorage {
     bool autoConnect = false,
     bool autoStart = false,
     List<String> splitApps = const [],
+    bool tlsFragment = false,
+    bool killSwitch = false,
   }) async {
     try {
       final file = _getConfigFile();
@@ -117,6 +121,8 @@ class AppStorage {
         'autoConnect': autoConnect,
         'autoStart': autoStart,
         'splitApps': splitApps,
+        'tlsFragment': tlsFragment,
+        'killSwitch': killSwitch,
       };
       await file.writeAsString(jsonEncode(data));
     } catch (_) {}

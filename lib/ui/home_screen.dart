@@ -32,6 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _autoConnect = false;
   bool _autoStart = false;
   List<String> _splitApps = [];
+  bool _tlsFragment = false;
+  bool _killSwitch = false;
 
   bool _isLoading = true;
   bool _sortByPing = false;
@@ -93,6 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _autoConnect = state['autoConnect'] as bool? ?? false;
     _autoStart = state['autoStart'] as bool? ?? false;
     _splitApps = (state['splitApps'] as List<String>?) ?? [];
+    _tlsFragment = state['tlsFragment'] as bool? ?? false;
+    _killSwitch = state['killSwitch'] as bool? ?? false;
 
     if (_selectedProfileId == null && _subscriptions.isNotEmpty) {
       final firstWithProfiles = _subscriptions.firstWhere(
@@ -106,6 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() => _isLoading = false);
 
+    _checkSubscriptionsDueForUpdate();
     _startAutoUpdateTimer();
 
     if (_autoConnect && _activeProfile != null && _coreState == CoreState.disconnected) {
@@ -117,16 +122,20 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _checkSubscriptionsDueForUpdate() {
+    final now = DateTime.now();
+    for (final sub in _subscriptions) {
+      if (sub.url.isNotEmpty &&
+          now.difference(sub.lastUpdated).inHours >= sub.autoUpdateIntervalHours) {
+        _refreshSubscription(sub);
+      }
+    }
+  }
+
   void _startAutoUpdateTimer() {
     _autoUpdateTimer?.cancel();
-    _autoUpdateTimer = Timer.periodic(const Duration(minutes: 15), (timer) {
-      final now = DateTime.now();
-      for (final sub in _subscriptions) {
-        if (sub.url.isNotEmpty &&
-            now.difference(sub.lastUpdated).inHours >= sub.autoUpdateIntervalHours) {
-          _refreshSubscription(sub);
-        }
-      }
+    _autoUpdateTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+      _checkSubscriptionsDueForUpdate();
     });
   }
 
@@ -139,6 +148,8 @@ class _HomeScreenState extends State<HomeScreen> {
       autoConnect: _autoConnect,
       autoStart: _autoStart,
       splitApps: _splitApps,
+      tlsFragment: _tlsFragment,
+      killSwitch: _killSwitch,
     );
   }
 
@@ -152,6 +163,8 @@ class _HomeScreenState extends State<HomeScreen> {
         bypassRu: _bypassRu,
         mode: _mode,
         splitTunnelingApps: _splitApps,
+        tlsFragment: _tlsFragment,
+        killSwitch: _killSwitch,
       );
     }
   }
@@ -187,6 +200,8 @@ class _HomeScreenState extends State<HomeScreen> {
       bypassRu: _bypassRu,
       mode: _mode,
       splitTunnelingApps: _splitApps,
+      tlsFragment: _tlsFragment,
+      killSwitch: _killSwitch,
     );
 
     if (!success && mounted) {
@@ -243,17 +258,23 @@ class _HomeScreenState extends State<HomeScreen> {
         autoStart: _autoStart,
         bypassRu: _bypassRu,
         splitApps: _splitApps,
+        tlsFragment: _tlsFragment,
+        killSwitch: _killSwitch,
         onSave: ({
           required bool autoConnect,
           required bool autoStart,
           required bool bypassRu,
           required List<String> splitApps,
+          required bool tlsFragment,
+          required bool killSwitch,
         }) {
           setState(() {
             _autoConnect = autoConnect;
             _autoStart = autoStart;
             _bypassRu = bypassRu;
             _splitApps = splitApps;
+            _tlsFragment = tlsFragment;
+            _killSwitch = killSwitch;
           });
           _saveState();
           if (_coreState == CoreState.connected && _activeProfile != null) {
@@ -262,6 +283,8 @@ class _HomeScreenState extends State<HomeScreen> {
               bypassRu: _bypassRu,
               mode: _mode,
               splitTunnelingApps: _splitApps,
+              tlsFragment: _tlsFragment,
+              killSwitch: _killSwitch,
             );
           }
         },

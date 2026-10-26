@@ -73,6 +73,8 @@ class CoreManager {
     required bool bypassRu,
     String mode = 'tun',
     List<String> splitTunnelingApps = const [],
+    bool tlsFragment = false,
+    bool killSwitch = false,
   }) async {
     _mode = mode;
     if (_state == CoreState.connected || _state == CoreState.connecting) {
@@ -100,6 +102,8 @@ class CoreManager {
           enableTun: enableTun,
           splitTunnelingApps: splitTunnelingApps,
           mixedPort: SystemProxyManager.defaultPort,
+          tlsFragment: tlsFragment,
+          killSwitch: killSwitch,
         );
 
         _mobileStateSub?.cancel();
@@ -167,6 +171,8 @@ class CoreManager {
         enableTun: enableTun,
         splitTunnelingApps: splitTunnelingApps,
         mixedPort: SystemProxyManager.defaultPort,
+        tlsFragment: tlsFragment,
+        killSwitch: killSwitch,
       );
 
       final storageDir = AppStorage.getStorageDirectory();
@@ -201,10 +207,14 @@ class CoreManager {
 
       _process!.exitCode.then((code) {
         _stopTrafficMonitor();
-        SystemProxyManager.disableProxy();
+        if (!killSwitch) {
+          SystemProxyManager.disableProxy();
+        }
         if (_state == CoreState.connected || _state == CoreState.connecting) {
           if (code != 0 && _lastError.isEmpty) {
-            _lastError = 'Процесс завершился с кодом $code';
+            _lastError = killSwitch
+                ? 'Kill Switch активен: соединение разорвано, трафик заблокирован'
+                : 'Процесс завершился с кодом $code';
           }
           _setState(code == 0 ? CoreState.disconnected : CoreState.error);
         }

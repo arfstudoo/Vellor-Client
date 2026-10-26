@@ -9,8 +9,10 @@ class ConfigGenerator {
     List<String> splitTunnelingApps = const [],
     int mixedPort = 20808,
     int apiPort = 9090,
+    bool tlsFragment = false,
+    bool killSwitch = false,
   }) {
-    final Map<String, dynamic> outbound = _buildProxyOutbound(profile);
+    final Map<String, dynamic> outbound = _buildProxyOutbound(profile, tlsFragment: tlsFragment);
 
     final routeRules = <Map<String, dynamic>>[
       {
@@ -104,6 +106,12 @@ class ConfigGenerator {
       });
     }
 
+    if (killSwitch) {
+      routeRules.add({
+        'outbound': 'proxy',
+      });
+    }
+
     final inbounds = <Map<String, dynamic>>[];
 
     if (enableTun) {
@@ -114,7 +122,7 @@ class ConfigGenerator {
         'address': ['172.19.0.1/30'],
         'mtu': 1500,
         'auto_route': true,
-        'strict_route': false,
+        'strict_route': killSwitch,
         'stack': 'gvisor',
       });
     }
@@ -184,7 +192,7 @@ class ConfigGenerator {
     return const JsonEncoder.withIndent('  ').convert(config);
   }
 
-  static Map<String, dynamic> _buildProxyOutbound(Profile p) {
+  static Map<String, dynamic> _buildProxyOutbound(Profile p, {bool tlsFragment = false}) {
     if (p.protocol == 'vless') {
       final isReality = p.security == 'reality' || p.pbk.isNotEmpty;
       final tlsConfig = <String, dynamic>{
@@ -194,6 +202,7 @@ class ConfigGenerator {
           'enabled': true,
           'fingerprint': p.fp.isNotEmpty ? p.fp : 'chrome',
         },
+        if (tlsFragment) 'fragment': true,
       };
 
       if (isReality) {
@@ -247,6 +256,7 @@ class ConfigGenerator {
         outbound['tls'] = {
           'enabled': true,
           'server_name': p.sni.isNotEmpty ? p.sni : p.server,
+          if (tlsFragment) 'fragment': true,
         };
       }
 
@@ -275,6 +285,7 @@ class ConfigGenerator {
         'tls': {
           'enabled': true,
           'server_name': p.sni.isNotEmpty ? p.sni : p.server,
+          if (tlsFragment) 'fragment': true,
         },
       };
 
@@ -306,6 +317,7 @@ class ConfigGenerator {
           'enabled': true,
           'server_name': p.sni.isNotEmpty ? p.sni : p.server,
           'alpn': ['h3'],
+          if (tlsFragment) 'fragment': true,
         },
       };
     }
@@ -321,6 +333,7 @@ class ConfigGenerator {
           'enabled': true,
           'server_name': p.sni.isNotEmpty ? p.sni : p.server,
           if (p.security == 'insecure') 'insecure': true,
+          if (tlsFragment) 'fragment': true,
         },
       };
 
@@ -345,6 +358,7 @@ class ConfigGenerator {
         'tls': {
           'enabled': true,
           'server_name': p.sni.isNotEmpty ? p.sni : p.server,
+          if (tlsFragment) 'fragment': true,
         },
       };
     }

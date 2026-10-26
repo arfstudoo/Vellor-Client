@@ -32,7 +32,6 @@ class ModeSelector extends StatelessWidget {
             id: 'tun',
             title: 'TUN',
             badge: 'Sing-box',
-            icon: Icons.shield_outlined,
             showBadge: !isCompact,
           ),
           const SizedBox(width: 3),
@@ -40,7 +39,6 @@ class ModeSelector extends StatelessWidget {
             id: 'proxy',
             title: 'Прокси',
             badge: 'Xray',
-            icon: Icons.language_rounded,
             showBadge: !isCompact,
           ),
         ],
@@ -52,7 +50,6 @@ class ModeSelector extends StatelessWidget {
     required String id,
     required String title,
     required String badge,
-    required IconData icon,
     required bool showBadge,
   }) {
     final isSelected = selectedMode == id;
@@ -62,7 +59,7 @@ class ModeSelector extends StatelessWidget {
       borderRadius: BorderRadius.circular(6),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: EdgeInsets.symmetric(horizontal: showBadge ? 8 : 10, vertical: 4),
+        padding: EdgeInsets.symmetric(horizontal: showBadge ? 10 : 12, vertical: 4),
         decoration: BoxDecoration(
           color: isSelected ? const Color(0xFF1E1E2A) : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
@@ -83,12 +80,6 @@ class ModeSelector extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 13,
-              color: isSelected ? const Color(0xFFE2E2EA) : const Color(0xFF727282),
-            ),
-            const SizedBox(width: 5),
             Text(
               title,
               style: TextStyle(
