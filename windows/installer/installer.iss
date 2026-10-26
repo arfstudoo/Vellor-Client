@@ -31,7 +31,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 Source: "..\..\vellor.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\..\flutter_windows.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\*.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\data\*"; DestDir: "{app}\data"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\..\core\*"; DestDir: "{app}\core"; Flags: ignoreversion recursesubdirs createallsubdirs
 

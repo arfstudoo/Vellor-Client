@@ -38,6 +38,7 @@ local.properties
 /windows/flutter/ephemeral/
 /data/
 flutter_windows.dll
+dartjni.dll
 
 *.apk
 *.aab
